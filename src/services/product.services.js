@@ -5,7 +5,6 @@ import promptAI from "../utils/prompt.js";
 
 const createProduct = async (data, files, userId) => {
   const uploadedFiles = await uploadFiles(files);
-
   let description = data?.description;
   if (!description) {
     const descriptionPrompt = formatProductPrompt(data);
