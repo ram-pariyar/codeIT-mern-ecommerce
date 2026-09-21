@@ -1,0 +1,63 @@
+import * as z from "zod";
+import { passwordRegex, emailRegex } from "../../constants/regex.js";
+import {
+  ROLE_ADMIN,
+  ROLE_CUSTOMER,
+  ROLE_MERCHANT,
+} from "../../constants/roles.js";
+
+const addressSchema = z.object(
+  {
+    city: z.string({ error: "City is required" }).trim(),
+    province: z.string().trim().optional(),
+    street: z.string().trim().optional(),
+    country: z.string().trim().optional(),
+  },
+  { error: "Address is required" },
+);
+
+const userSchema = z.object({
+  name: z
+    .string({ error: "Username is required." })
+    .trim()
+    .check(z.minLength(3), z.maxLength(50), z.lowercase()),
+  email: z
+    .email({
+      error: (data) =>
+        data.input ? "Email must be valid" : "Email is required.",
+    })
+    .trim()
+    .check(z.minLength(5), z.maxLength(100), z.lowercase()),
+  password: z
+    .string({ error: "Password is required" })
+    .trim()
+    .check(
+      z.minLength(5),
+      z.maxLength(100),
+      z.regex(passwordRegex, {
+        error:
+          "Password must be uppercase,lowercase, number and special characters.",
+      }),
+    ),
+  roles: z.array(z.enum([ROLE_ADMIN, ROLE_MERCHANT, ROLE_CUSTOMER])).optional(),
+  phone: z.string({ error: "Phone is required" }).trim(),
+  address: addressSchema,
+  isActive: z.boolean().optional(),
+});
+
+const updatePasswordSchema = z.object({
+  currentPassword: z.string(),
+  newPassword: z
+    .string({ error: "Password is required" })
+    .trim()
+    .check(
+      z.minLength(5),
+      z.maxLength(100),
+      z.regex(passwordRegex, {
+        error:
+          "Password must be uppercase,lowercase, number and special characters.",
+      }),
+    ),
+});
+
+export { userSchema, addressSchema, updatePasswordSchema };
